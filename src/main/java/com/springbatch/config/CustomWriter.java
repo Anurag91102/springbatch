@@ -1,51 +1,59 @@
 package com.springbatch.config;
 
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.springbatch.model.Insurance;
+import com.springbatch.model.InsuranceDTO;
 import com.springbatch.service.ExcelLogService;
 import com.springbatch.service.HealthService;
 import com.springbatch.service.PersonalService;
 
-public class CustomWriter implements ItemWriter<Insurance>
-{
+public class CustomWriter implements ItemWriter<InsuranceDTO> {
+	
+	Logger logger = LoggerFactory.getLogger(CustomWriter.class);
+	
 	@Autowired
 	private PersonalService personalService;
-	
+
 	@Autowired
 	private HealthService healthService;
-	
+
 	@Autowired
 	private ExcelLogService excelLogService;
-	
-	@Override
-	public void write(List<? extends Insurance> items) throws Exception 
-	{
-		int count = 0;
-		for(Insurance item:items)
-		{
-			count++;
-			try {
-				if("health".equalsIgnoreCase(item.getCategory()))
-			    {
-			    	 healthService.saveData(item); 
-		        }
-			    else
-			    {
-		            personalService.saveData(item);
-		        }
-				excelLogService.saveLog(item.getPolicy(), "success");
-			}
-		    catch (Exception e) 
-			{
-				System.out.println(e);
-				excelLogService.saveLog(item.getPolicy(), "fail");
-			}
-		     
-		}
-		System.out.println("Number of records fetch :"+count);
+
+	public enum Category{
+		PERSONAL,HEALTH;
 	}
 	
+	@Override
+	public void write(List<? extends InsuranceDTO> items) throws Exception{
+		int count = 0;
+		for (InsuranceDTO item : items) {
+			count++;
+			try {
+				Category category =  Category.valueOf(item.getCategory().toUpperCase());
+				switch (category) 
+				{
+					case HEALTH:
+						healthService.saveData(item);
+						break;
+					case PERSONAL:
+						personalService.saveData(item);
+						break;
+					default:
+						throw new IllegalArgumentException();
+				}
+				excelLogService.saveLog(item.getPolicy(), "success");
+			} catch (Exception e) {
+				logger.warn(e.getMessage());
+				excelLogService.saveLog(item.getPolicy(), "fail");
+			}
+
+		}
+		System.out.println("Number of records fetch :" + count);
+	}
 
 }

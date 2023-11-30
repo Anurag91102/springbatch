@@ -5,7 +5,7 @@ import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.springbatch.model.Insurance;
+import com.springbatch.model.InsuranceDTO;
 import com.springbatch.model.Personal;
 import com.springbatch.repo.PersonalRepo;
 
@@ -19,7 +19,7 @@ public class PersonalService
     private ModelMapper modelMapper;
 	
 	@Transactional
-    public void saveData(Insurance item) 
+    public void saveData(InsuranceDTO item) 
     {
 		
 		Personal personal = modelMapper.map(item, Personal.class);

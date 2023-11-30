@@ -13,36 +13,43 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class JobController 
-{
+public class JobController {
 	@Autowired
 	private Job myjob;
-	
+
 	@Autowired
 	private JobLauncher jobLauncher;
-	
-	private boolean firstExecution = true;
-	
-     
-	@Scheduled(cron = "0 * * * * *")
-	public void handleBatch() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException
-	{
-		long currentTime = System.currentTimeMillis();
-		long offsetValue;
-        if (firstExecution)
-        {
-            offsetValue = 0L;
-        } else 
-        {
-            offsetValue = 1L;
-        }
 
-	    firstExecution = false;
-		JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("time", currentTime)
-				.addLong("offset", offsetValue)
-				.toJobParameters();
-		jobLauncher.run(myjob, jobParameters);
-		System.out.println("Job Execution Completed.");
+	@Autowired
+	private FileUploadController fileUploadController;
+
+	private boolean firstExecution = true;
+
+	@Scheduled(cron = "0 * * * * *")
+	public void handleBatch() {
+		String uploadedFileName = fileUploadController.getUploadedFileName();
+		if (uploadedFileName != null) {
+			try {
+				long currentTime = System.currentTimeMillis();
+				long offsetValue;
+				if (firstExecution) {
+					offsetValue = 0L;
+				} else {
+					offsetValue = 1L;
+				}
+				
+				firstExecution = false;
+				JobParameters jobParameters = new JobParametersBuilder().addLong("time", currentTime)
+						.addLong("offset", offsetValue).toJobParameters();
+				jobLauncher.run(myjob, jobParameters);
+				System.out.println("Job Execution Completed.");
+			} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
+					| JobParametersInvalidException e) {
+				e.printStackTrace();
+			}
+		} 
+		else {
+			System.out.println("No Excel file uploaded. Skipping Reading Data From Excel Job execution.");
+		}
 	}
 }

@@ -11,22 +11,29 @@ import com.springbatch.repo.ExcelLogRepo;
 @Service
 public class ExcelLogService 
 {
-
 	@Autowired
 	private ExcelLogRepo excelLogRepo;
 
 	public void saveLog(int policyNo, String operation) {
-		ExcelLog existedLog = excelLogRepo.findByPolicyNo(policyNo);
-		if (excelLogRepo != null) {
-			existedLog.setOperation(operation);
-			existedLog.setTimestamp(LocalDateTime.now());
-			excelLogRepo.save(existedLog);
-		} else {
-			ExcelLog excelLog = new ExcelLog();
-			excelLog.setPolicyNo(policyNo);
-			excelLog.setOperation(operation);
-			excelLog.setTimestamp(LocalDateTime.now());
-			excelLogRepo.save(excelLog);
+		try 
+		{
+			ExcelLog existedLog = excelLogRepo.findByPolicyNo(policyNo);
+			if (existedLog != null) {
+				existedLog.setOperation(operation);
+				existedLog.setTimestamp(LocalDateTime.now());
+				excelLogRepo.save(existedLog);
+			} 
+			else {
+				ExcelLog excelLog = new ExcelLog();
+				excelLog.setPolicyNo(policyNo);
+				excelLog.setOperation(operation);
+				excelLog.setTimestamp(LocalDateTime.now());
+				excelLogRepo.save(excelLog);
+			}
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
 		}
 
 	}

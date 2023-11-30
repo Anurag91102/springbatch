@@ -21,28 +21,36 @@ public class EmailController
 	@Autowired
 	private Job myjob2;
 	
+	@Autowired
+	private FileUploadController fileUploadController;
+	
 	private boolean firstExecution = true;
 	
-    
-	@Scheduled(cron = "0 */2 * * * *")
-	public void handleBatch() throws JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException, JobParametersInvalidException
+	@Scheduled(cron = "0 */5 * * * *")
+	public void handleEmailBatch()
 	{
-		long currentTime = System.currentTimeMillis();
-		long offsetValue;
-        if (firstExecution)
-        {
-            offsetValue = 0L;
-        } else 
-        {
-            offsetValue = 1L;
-        }
+		String uploadedFileName = fileUploadController.getUploadedFileName();
+		if (uploadedFileName != null) {
+			try {
+				long currentTime = System.currentTimeMillis();
+				long offsetValue;
+				if (firstExecution) {
+					offsetValue = 0L;
+				} else {
+					offsetValue = 1L;
+				}
 
-	    firstExecution = false;
-		JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("EmailJobTime", currentTime)
-				.addLong("EmailJobOffset", offsetValue)
-				.toJobParameters();
-		jobLauncher.run(myjob2, jobParameters);
-		System.out.println("Email Job Completed.");
+				firstExecution = false;
+				JobParameters jobParameters = new JobParametersBuilder().addLong("EmailJobTime", currentTime)
+						.addLong("EmailJobOffset", offsetValue).toJobParameters();
+				jobLauncher.run(myjob2, jobParameters);
+				System.out.println("Email Job Completed.");
+			} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException
+					| JobParametersInvalidException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.out.println("No Excel file uploaded. Skipping Email Sending Job execution.");
+		}
 	}
 }

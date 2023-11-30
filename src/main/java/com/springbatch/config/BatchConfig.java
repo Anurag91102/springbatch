@@ -16,8 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import com.springbatch.model.Insurance;
+import org.springframework.core.io.FileSystemResource;
+import com.springbatch.controller.FileUploadController;
+import com.springbatch.model.InsuranceDTO;
 
 @Configuration
 @EnableBatchProcessing
@@ -27,6 +28,12 @@ public class BatchConfig {
 
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
+
+	@Autowired
+	private FileUploadController fileUploadController;
+
+	@Value("${upload.dir}")
+	private String uploadDir;
 
 	private int offset = 0;
 	private int pageSize = 20;
@@ -38,7 +45,7 @@ public class BatchConfig {
 
 	@Bean
 	@StepScope
-	PoiItemReader<Insurance> excelJobReader(@Value("#{jobParameters['offset']}") Long jobOffset) {
+	PoiItemReader<InsuranceDTO> excelJobReader(@Value("#{jobParameters['offset']}") Long jobOffset) {
 		int linesToSkip;
 		System.out.println("Excel Offset: " + jobOffset);
 		if (jobOffset == 0) {
@@ -49,34 +56,37 @@ public class BatchConfig {
 			linesToSkip = offset + offset * pageSize;
 			pageSize = pageSize + 20;
 		}
-		PoiItemReader<Insurance> reader = new PoiItemReader<>();
+		PoiItemReader<InsuranceDTO> reader = new PoiItemReader<>();
 		reader.setLinesToSkip(linesToSkip);
-		reader.setResource(new ClassPathResource("InsuranceData.xlsx"));
+		String uploadedFileName = fileUploadController.getUploadedFileName();
+		String uploadedFilePath = uploadDir + "/" + uploadedFileName;
+		reader.setResource(new FileSystemResource(uploadedFilePath));
+		System.out.println("Excel Path: "+uploadedFilePath);
 		System.out.println("Excel LinesToSkip: " + linesToSkip);
 		reader.setRowMapper(excelRowMapper());
 		reader.setMaxItemCount(20);
 		return reader;
 	}
 
-	private RowMapper<Insurance> excelRowMapper() {
-		BeanWrapperRowMapper<Insurance> rowMapper = new BeanWrapperRowMapper<>();
-		rowMapper.setTargetType(Insurance.class);
+	private RowMapper<InsuranceDTO> excelRowMapper() {
+		BeanWrapperRowMapper<InsuranceDTO> rowMapper = new BeanWrapperRowMapper<>();
+		rowMapper.setTargetType(InsuranceDTO.class);
 		return rowMapper;
 	}
 
 	@Bean
-	ItemProcessor<Insurance, Insurance> customItemProcessor() {
+	ItemProcessor<InsuranceDTO, InsuranceDTO> customItemProcessor() {
 		return new CustomProcessor();
 	}
 
 	@Bean
-	ItemWriter<Insurance> customWriter() {
+	ItemWriter<InsuranceDTO> customWriter() {
 		return new CustomWriter();
 	}
 
 	@Bean
 	public Step myStep() {
-		return stepBuilderFactory.get("step1").<Insurance, Insurance>chunk(20).reader(excelJobReader(null))
+		return stepBuilderFactory.get("step1").<InsuranceDTO, InsuranceDTO>chunk(20).reader(excelJobReader(null))
 				.processor(customItemProcessor()).writer(customWriter()).build();
 	}
 
@@ -84,4 +94,6 @@ public class BatchConfig {
 	Job myjob() {
 		return jobBuilderFactory.get("processJob").flow(myStep()).end().build();
 	}
+	
+
 }

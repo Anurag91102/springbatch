@@ -1,7 +1,6 @@
 package com.springbatch.model;
 
 import java.time.LocalDateTime;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -68,8 +67,5 @@ public class ExcelLog
 	public String toString() {
 		return "ExcelLog [id=" + id + ", policyNo=" + policyNo + ", operation=" + operation + ", timestamp=" + timestamp
 				+ "]";
-	}
-
-	
-	
+	}	
 }

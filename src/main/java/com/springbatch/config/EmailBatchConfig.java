@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import com.springbatch.model.Insurance;
+import org.springframework.core.io.FileSystemResource;
+
+import com.springbatch.controller.FileUploadController;
+import com.springbatch.model.InsuranceDTO;
 
 @Configuration
 @EnableBatchProcessing
@@ -26,13 +28,19 @@ public class EmailBatchConfig {
 
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
+	
+	@Autowired
+	private FileUploadController fileUploadController;
+
+	@Value("${upload.dir}")
+	private String uploadDir;
 
 	private int offset = 0;
 	private int pageSize = 1;
 
 	@Bean
 	@StepScope
-	PoiItemReader<Insurance> EmailJobReader(@Value("#{jobParameters['EmailJobOffset']}") Long jobOffset) {
+	PoiItemReader<InsuranceDTO> EmailJobReader(@Value("#{jobParameters['EmailJobOffset']}") Long jobOffset) {
 		int linesToSkip;
 		System.out.println("Email Offset: " + jobOffset);
 		if (jobOffset == 0) {
@@ -43,34 +51,37 @@ public class EmailBatchConfig {
 			linesToSkip = offset + offset * pageSize;
 			pageSize = pageSize + 1;
 		}
-		PoiItemReader<Insurance> reader = new PoiItemReader<>();
+		PoiItemReader<InsuranceDTO> reader = new PoiItemReader<>();
 		reader.setLinesToSkip(linesToSkip);
-		reader.setResource(new ClassPathResource("InsuranceData.xlsx"));
+		String uploadedFileName = fileUploadController.getUploadedFileName();
+		String uploadedFilePath = uploadDir + "/" + uploadedFileName;
+		reader.setResource(new FileSystemResource(uploadedFilePath));
+		System.out.println("Email Path: "+uploadedFilePath);
 		System.out.println("Email LinesToSkip: " + linesToSkip);
 		reader.setRowMapper(emailRowMapper());
 		reader.setMaxItemCount(1);
 		return reader;
 	}
 
-	private RowMapper<Insurance> emailRowMapper() {
-		BeanWrapperRowMapper<Insurance> rowMapper = new BeanWrapperRowMapper<>();
-		rowMapper.setTargetType(Insurance.class);
+	private RowMapper<InsuranceDTO> emailRowMapper() {
+		BeanWrapperRowMapper<InsuranceDTO> rowMapper = new BeanWrapperRowMapper<>();
+		rowMapper.setTargetType(InsuranceDTO.class);
 		return rowMapper;
 	}
 
 	@Bean
-	ItemProcessor<Insurance, Insurance> customEmailProcessor() {
+	ItemProcessor<InsuranceDTO, InsuranceDTO> customEmailProcessor() {
 		return new CustomEmailProcessor();
 	}
 
 	@Bean
-	ItemWriter<Insurance> customEmailWriter() {
+	ItemWriter<InsuranceDTO> customEmailWriter() {
 		return new CustomEmailWriter();
 	}
 
 	@Bean
 	public Step myStep2() {
-		return stepBuilderFactory.get("step2").<Insurance, Insurance>chunk(100).reader(EmailJobReader(null))
+		return stepBuilderFactory.get("step2").<InsuranceDTO, InsuranceDTO>chunk(100).reader(EmailJobReader(null))
 				.processor(customEmailProcessor()).writer(customEmailWriter()).build();
 	}
 

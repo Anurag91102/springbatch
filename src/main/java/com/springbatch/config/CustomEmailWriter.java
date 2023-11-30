@@ -1,16 +1,17 @@
 package com.springbatch.config;
 
 import java.util.List;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.springbatch.model.Insurance;
+import com.springbatch.model.InsuranceDTO;
 import com.springbatch.service.EmailService;
 import com.springbatch.service.NotificationLogService;
 
-public class CustomEmailWriter implements ItemWriter<Insurance>
+public class CustomEmailWriter implements ItemWriter<InsuranceDTO>
 {
+	Logger logger = LoggerFactory.getLogger(CustomEmailWriter.class);
 	
 	@Autowired
 	private EmailService emailService;
@@ -19,9 +20,9 @@ public class CustomEmailWriter implements ItemWriter<Insurance>
 	private NotificationLogService notificationLogService;
 
 	@Override
-	public void write(List<? extends Insurance> items) throws Exception 
+	public void write(List<? extends InsuranceDTO> items) throws Exception 
 	{
-		for(Insurance item : items)
+		for(InsuranceDTO item : items)
 		{
 			String email = item.getEmail();
 			String body = "Hii Testing Started";
@@ -31,9 +32,9 @@ public class CustomEmailWriter implements ItemWriter<Insurance>
 				emailService.sendEmail(email, body,subject);
 				notificationLogService.saveEmailLog(email, subject, body, "success");
 			}
-			catch (Exception e) 
+			catch (Exception e)
 			{
-				System.out.println(e);
+				e.printStackTrace();
 				notificationLogService.saveEmailLog(email, subject, body, "fail");
 			}
 		}

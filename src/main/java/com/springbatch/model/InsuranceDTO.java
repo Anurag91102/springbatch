@@ -2,7 +2,7 @@ package com.springbatch.model;
 
 import javax.persistence.Id;
 
-public class Insurance 
+public class InsuranceDTO
 {
 	@Id
 	private int policy;
@@ -185,12 +185,12 @@ public class Insurance
 		this.age = age;
 	}
 
-	public Insurance() {
+	public InsuranceDTO() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Insurance(int policy, String expiry, String location, String state, String region, String insuredValue,
+	public InsuranceDTO(int policy, String expiry, String location, String state, String region, String insuredValue,
 			String category, String name, String pos, String ht, String wt, String age, String exp, String college,
 			String firstName, String lastName, String email, String phone) {
 		super();

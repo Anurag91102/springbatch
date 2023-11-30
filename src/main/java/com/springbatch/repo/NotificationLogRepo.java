@@ -6,6 +6,6 @@ import com.springbatch.model.NotificationLog;
 
 public interface NotificationLogRepo extends JpaRepository<NotificationLog, Integer>
 {
-	NotificationLog  findByToEmail(String toEmail);
+	NotificationLog findByToEmail(String toEmail);
 	
 }
