@@ -31,22 +31,32 @@ public class CustomWriter implements ItemWriter<InsuranceDTO> {
 	@Override
 	public void write(List<? extends InsuranceDTO> items) throws Exception{
 		int count = 0;
-		for (InsuranceDTO item : items) {
+		for (InsuranceDTO item : items) 
+		{
+			System.out.println("Item:"+item);
 			count++;
 			try {
-				Category category =  Category.valueOf(item.getCategory().toUpperCase());
-				switch (category) 
+				if(item!=null)
 				{
-					case HEALTH:
-						healthService.saveData(item);
-						break;
-					case PERSONAL:
-						personalService.saveData(item);
-						break;
-					default:
-						throw new IllegalArgumentException();
+					Category category =  Category.valueOf(item.getCategory().toUpperCase());
+					switch (category) 
+					{
+						case HEALTH:
+							healthService.saveData(item);
+							break;
+						case PERSONAL:
+							personalService.saveData(item);
+							break;
+						default:
+							throw new IllegalArgumentException();
+					}
+					excelLogService.saveLog(item.getPolicy(), "success");
 				}
-				excelLogService.saveLog(item.getPolicy(), "success");
+				else
+				{
+					  logger.warn("Skipping null item in the write method.");
+				}
+				
 			} catch (Exception e) {
 				logger.warn(e.getMessage());
 				excelLogService.saveLog(item.getPolicy(), "fail");

@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+
 @Entity
 @Table(name = "PersonalCat")
 public class Personal 
@@ -44,11 +45,15 @@ public class Personal
 	private String email;
 	
 	private String phone;
+	
+	private String createdAt;
+	
+	private String updatedAt;
 
 	public int getPolicy() {
 		return policy;
 	}
-
+	
 	public void setPolicy(int policy) {
 		this.policy = policy;
 	}
@@ -99,6 +104,22 @@ public class Personal
 
 	public void setExpiry(String expiry) {
 		this.expiry = expiry;
+	}
+
+	public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(String updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	public String getName() {
@@ -194,9 +215,18 @@ public class Personal
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String toString() {
+		return "Personal [policy=" + policy + ", expiry=" + expiry + ", location=" + location + ", state=" + state
+				+ ", region=" + region + ", insuredValue=" + insuredValue + ", category=" + category + ", name=" + name
+				+ ", pos=" + pos + ", ht=" + ht + ", wt=" + wt + ", age=" + age + ", Exp=" + Exp + ", college="
+				+ college + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", phone="
+				+ phone + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
+	}
+
 	public Personal(int policy, String expiry, String location, String state, String region, String insuredValue,
 			String category, String name, String pos, String ht, String wt, String age, String exp, String college,
-			String firstName, String lastName, String email, String phone) {
+			String firstName, String lastName, String email, String phone, String createdAt, String updatedAt) {
 		super();
 		this.policy = policy;
 		this.expiry = expiry;
@@ -216,15 +246,7 @@ public class Personal
 		this.lastName = lastName;
 		this.email = email;
 		this.phone = phone;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
 	}
-
-	@Override
-	public String toString() {
-		return "Insurance [policy=" + policy + ", expiry=" + expiry + ", location=" + location + ", state=" + state
-				+ ", region=" + region + ", insuredValue=" + insuredValue + ", category=" + category + ", name=" + name
-				+ ", pos=" + pos + ", ht=" + ht + ", wt=" + wt + ", age=" + age + ", Exp=" + Exp + ", college="
-				+ college + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", phone="
-				+ phone + "]";
-	}
-
 }

@@ -1,5 +1,7 @@
 package com.springbatch.service;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,4 +25,20 @@ public class HealthService {
     	Health health = modelMapper.map(item, Health.class);
   		healthRepo.save(health);
     }
+	
+	
+	public Boolean findById(InsuranceDTO item)
+	{
+		Optional<Health> health= healthRepo.findById(item.getPolicy());
+		if(health.isPresent())
+		{
+			System.out.println("Present");
+			return true;
+		}
+		else
+		{
+			System.out.println("Absent");
+			return false;
+		}
+	}
 }

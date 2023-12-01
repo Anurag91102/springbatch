@@ -26,7 +26,7 @@ public class EmailController
 	
 	private boolean firstExecution = true;
 	
-	@Scheduled(cron = "0 */5 * * * *")
+	@Scheduled(cron = "0 0 * * * *")
 	public void handleEmailBatch()
 	{
 		String uploadedFileName = fileUploadController.getUploadedFileName();

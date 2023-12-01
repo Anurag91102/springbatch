@@ -40,6 +40,10 @@ public class InsuranceDTO
 	private String email;
 	
 	private String phone;
+	
+	private String createdAt;
+	
+	private String updatedAt;
 
 	public int getPolicy() {
 		return policy;
@@ -79,6 +83,22 @@ public class InsuranceDTO
 
 	public void setInsuredValue(String insuredValue) {
 		this.insuredValue = insuredValue;
+	}
+
+	public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(String updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	public String getCategory() {
@@ -190,9 +210,11 @@ public class InsuranceDTO
 		// TODO Auto-generated constructor stub
 	}
 
+	
+
 	public InsuranceDTO(int policy, String expiry, String location, String state, String region, String insuredValue,
 			String category, String name, String pos, String ht, String wt, String age, String exp, String college,
-			String firstName, String lastName, String email, String phone) {
+			String firstName, String lastName, String email, String phone, String createdAt, String updatedAt) {
 		super();
 		this.policy = policy;
 		this.expiry = expiry;
@@ -212,14 +234,18 @@ public class InsuranceDTO
 		this.lastName = lastName;
 		this.email = email;
 		this.phone = phone;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
 	}
 
 	@Override
 	public String toString() {
-		return "Insurance [policy=" + policy + ", expiry=" + expiry + ", location=" + location + ", state=" + state
+		return "InsuranceDTO [policy=" + policy + ", expiry=" + expiry + ", location=" + location + ", state=" + state
 				+ ", region=" + region + ", insuredValue=" + insuredValue + ", category=" + category + ", name=" + name
 				+ ", pos=" + pos + ", ht=" + ht + ", wt=" + wt + ", age=" + age + ", Exp=" + Exp + ", college="
 				+ college + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + ", phone="
-				+ phone + "]";
+				+ phone + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + "]";
 	}
+
+	
 }

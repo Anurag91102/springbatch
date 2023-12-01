@@ -7,6 +7,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.extensions.excel.ExcelFileParseException;
 import org.springframework.batch.extensions.excel.RowMapper;
 import org.springframework.batch.extensions.excel.mapping.BeanWrapperRowMapper;
 import org.springframework.batch.extensions.excel.poi.PoiItemReader;
@@ -46,26 +47,36 @@ public class BatchConfig {
 	@Bean
 	@StepScope
 	PoiItemReader<InsuranceDTO> excelJobReader(@Value("#{jobParameters['offset']}") Long jobOffset) {
-		int linesToSkip;
-		System.out.println("Excel Offset: " + jobOffset);
-		if (jobOffset == 0) {
-			offset = jobOffset.intValue();
-			linesToSkip = 1;
-		} else {
-			offset = 1;
-			linesToSkip = offset + offset * pageSize;
-			pageSize = pageSize + 20;
+		try {
+		
+			int linesToSkip;
+			System.out.println("Excel Offset: " + jobOffset);
+			if (jobOffset == 0) {
+				offset = jobOffset.intValue();
+				linesToSkip = 1;
+			} else {
+				offset = 1;
+				linesToSkip = offset + offset * pageSize;
+				pageSize = pageSize + 20;
+			}
+			PoiItemReader<InsuranceDTO> reader = new PoiItemReader<>();
+			reader.setLinesToSkip(linesToSkip);
+			String uploadedFileName = fileUploadController.getUploadedFileName();
+			String uploadedFilePath = uploadDir + "/" + uploadedFileName;
+			reader.setResource(new FileSystemResource(uploadedFilePath));
+			System.out.println("Excel Path: "+uploadedFilePath);
+			System.out.println("Excel LinesToSkip: " + linesToSkip);
+			reader.setRowMapper(excelRowMapper());
+			reader.setMaxItemCount(20);
+			return reader;
 		}
-		PoiItemReader<InsuranceDTO> reader = new PoiItemReader<>();
-		reader.setLinesToSkip(linesToSkip);
-		String uploadedFileName = fileUploadController.getUploadedFileName();
-		String uploadedFilePath = uploadDir + "/" + uploadedFileName;
-		reader.setResource(new FileSystemResource(uploadedFilePath));
-		System.out.println("Excel Path: "+uploadedFilePath);
-		System.out.println("Excel LinesToSkip: " + linesToSkip);
-		reader.setRowMapper(excelRowMapper());
-		reader.setMaxItemCount(20);
-		return reader;
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		
+
 	}
 
 	private RowMapper<InsuranceDTO> excelRowMapper() {
